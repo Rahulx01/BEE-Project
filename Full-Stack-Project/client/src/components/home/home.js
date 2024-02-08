@@ -9,7 +9,7 @@ export default function Home(props){
         <>
             {showLogin && (<Login showLogin={showLogin} setShowLogin={setShowLogin} setUser={props.setUser} setCookie={props.setCookie}/>)}
             <Header showLogin={showLogin} setShowLogin={setShowLogin} user={props.user} setCookie={props.setCookie} setUser={props.setUser}/>
-            <Main></Main>
+            <Main user={props.user} setUser={props.setUser} setShowLogin={setShowLogin}></Main>
         </>
     )
 }

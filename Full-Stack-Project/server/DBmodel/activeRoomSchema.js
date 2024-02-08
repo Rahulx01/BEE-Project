@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const activeRoom = mongoose.Schema({
+const activeRoom = new mongoose.Schema({
     roomCode:{
         type:String,
         require:true

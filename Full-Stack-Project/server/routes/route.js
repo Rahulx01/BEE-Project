@@ -3,46 +3,45 @@ import userSchema from '../DBmodel/userSchema.js';
 import { generateToken } from './getNewToken.js';
 import { generateRoomCode } from './getNewRoomCode.js';
 import activeRoomSchema from '../DBmodel/activeRoomSchema.js';
-
+import jwt from 'jsonwebtoken';
 
 const route = express.Router();
+//Define middeware
+const tokenAuthentication = (req, res, next) => {
+    const JWtoken = (req.headers?.cookie)?.replace("JWtoken=", "");
+    // console.log(JWtoken);
+    try {
+        const user = jwt.verify(JWtoken, "THISISMYSECRETKEYFORMYSECRETPROJECT");
+        req.user = {username: user?.username};
+        res.status(200);
+        next();
+    }
+    catch(err) {
+        // console.log("error occured while authenticating",err);
+        return res.status(401);
+        // .json({ message: "Invalid token" });
+    }
+}
 
+const getUserDetails = (req, res, next) => {
+    res.json(req?.user);
+    next();
+}
+    
 // Define routes...
 
-route.get('/', async (req, res) => {
-    try {
-        // const JWtoken = req.headers.authorization? req.headers.authorization : (req.headers.cookie).replace("JWtoken=", "");
-        const JWtoken = (req.headers.cookie).replace("JWtoken=", "");
-        console.log(JWtoken);
-        if (JWtoken == undefined) return res.status(401).json({message:"The token is undefined!"});
-        const user = await userSchema.findOne({ token: JWtoken });
-        console.log(user);
-        if (user)   return res.json({user: user}); // User is logged in
-        else    return res.status(401).json({message:"The token is undefined!"});  // User is not logged in
-
-    } catch (error) {
-        // console.log(error);
-        res.status(500).json({ message: "uff Internal Server Error" });
-    }
-});
-
+route.get('/me', tokenAuthentication, getUserDetails);
 
 route.post('/login', async (req, res) => {
     const user = await userSchema.findOne({ username: req.body.uname, password: req.body.passwd });
     if (user) {
         // Username and password combination exists in MongoDB
-        let token = generateToken(req.body.uname);
+        let token = generateToken(req.body.uname, req.body.passwd);
         try {
-            // res.cookie("JWtoken", token, {
-            //     expires: new Date(Date.now() + 6900000),
-            //     withCredentials: true,
-            //     httpOnly: true,
-            //     secure: true,
-            //     sameSite: "None"
-            // });
             user.token = token;
             await user.save();
-            res.json({user: user});
+            // res.cookie('token')
+            res.json({token:token});
         } catch (e) {
             console.log("I am catch error " + e);
         }
@@ -57,72 +56,61 @@ route.post('/Yudhister', async (req, res) => {
     try {
         const { email, uname, passwd } = req.body;
         if (!email || !uname || !passwd) {
-            return res.status(422).json({ error: "Plz filled the field properly" });
+            return res.status(400).json({ error: "Payload missing" });
         }
         if (await userSchema.findOne({ username: uname })) {
-            return res.status(422).json({ error: "This username already exists!" });
+            return res.status(409);
         }
-        console.log("yes received");
-        let token = generateToken(uname);
+        let token = generateToken(uname, passwd);
         const newUser = new userSchema({
             email: email,
             username: uname,
-            password: passwd,
-            token:token
+            password: passwd
         });
-        // res.cookie("JWtoken", token, {
-        //     expires: new Date(Date.now() + 2592000),
-        //     withCredentials: true,
-        //     httpOnly: true,
-        //     secure: true,
-        //     sameSite: "None"
-        // });
         await newUser.save();
-        res.status(201).json({user: newUser});
+        res.status(201).json({token: token});
     } catch (err) {
         console.log("This is from yudhister error ", err);
     }
 });
 
-route.get("/host",async (req,res) => {
-    
-    const JWtoken = req.headers.authorization? req.headers.authorization : (req.headers.cookie).replace("JWtoken=", "");
-    const user = await userSchema.findOne({ token: JWtoken });
-    if(!user) return res.status(200).json({message:"User not logsged in"});
+route.get("/host",tokenAuthentication,async (req,res) => {
     let roomCode;
     try{
-        let room = true;
-        while(room){
+        while(!roomCode){
             roomCode = generateRoomCode(10);
-            room = await activeRoomSchema.findOne({roomCode:roomCode});
+            if(await activeRoomSchema.exists({roomCode:roomCode})) roomCode = undefined;
         }
         const newRoom = new activeRoomSchema({
             roomCode: roomCode,
-            host: user.username
+            host: req?.username
         });
         await newRoom.save();
+        res.json({roomCode:roomCode});
     }catch(e){
-        console.log("The error is : ",e);
+        console.log("Error while generating room code : ",e);
+        res.status(500).json({message: "Error while generating room code"});
     }
-    // console.log("room code : ",roomCode);
-    return res.status(200).json({message:"Succesfull",roomCode:roomCode});
 });
 
-route.get('/:roomcode',async (req,res) => {
-    const JWtoken = req.headers.authorization? req.headers.authorization : (req.headers.cookie).replace("JWtoken=", "");
-    const user = await userSchema.findOne({ token: JWtoken });
-    const roomcode = req.params.roomcode;
-    const room = await activeRoomSchema.findOne({roomCode:roomcode});
-    if(room){
-        if(user && room.host == user.username) return res.status(200).json({message:"you r host",room: room});
-        else{
-            room.members.addToSet(user.username);
-            await room.save();
-            return res.status(201).json({message:"you r member",room: room});
-        }
-    }
-    return res.status(203).json({message:"No room found"});
-});
+// route.get("/join", tokenAuthentication, async (req,res) => {
+//     if(await activeRoomSchema.exists({roomCode:roomCode})) roomCode = undefined;
+// });
 
+// route.get('/room/:roomcode',async (req,res) => {
+//     const JWtoken = req.headers.authorization? req.headers.authorization : (req.headers.cookie).replace("JWtoken=", "");
+//     const user = await userSchema.findOne({ token: JWtoken });
+//     const roomcode = req.params.roomcode;
+//     const room = await activeRoomSchema.findOne({roomCode:roomcode});
+//     if(room){
+//         if(user && room.host == user.username) return res.status(200).json({message:"you r host",room: room});
+//         else{
+//             room.members.addToSet(user.username);
+//             await room.save();
+//             return res.status(201).json({message:"you r member",room: room});
+//         }
+//     }
+//     return res.status(203).json({message:"No room found"});
+// });
 export default route;
 

@@ -20,14 +20,15 @@ export default function Signin(props) {
             body: JSON.stringify({
                 uname, passwd
             })
-        }).then(async (res) => {
+        }).then(res => {
             if(res.ok) {
                 res.json()
                 .then((data) => {
-                    console.log("fom sigin",data);
-                    props.setUser(data.user);
+                    props.setUser({username:uname});
+                    console.log(data.token);
+                    props.setCookie('JWtoken', data.token, { path: '/' });
                     props.setShowLogin(false);
-                    props.setCookie('JWtoken', data.user.token, { path: '/' });
+                    
                 });
             }
         }).catch((err) => {

@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';     //Auth Js
 
-export function generateToken(username){
+export function generateToken(uname, passwd){
     let token;
     try{
-        token = jwt.sign({user:username}, "THISISMYSECRETKEYFORMYSECRETPROJECT");
+        token = jwt.sign({username: uname, passwd: passwd}, "THISISMYSECRETKEYFORMYSECRETPROJECT");
     }
     catch(err){
         console.log(err);

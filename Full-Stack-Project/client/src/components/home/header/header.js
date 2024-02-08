@@ -2,9 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Header(props) {
-    const profileImage = props.user && props.user.ProfilePic ? props.user.ProfilePic : 'images/mitr.jpeg';
-    const username = props.user? props.user.username : "Hola";
-    console.log("From header component ",username);
+    const profileImage = props.user && props.user.ProfilePic ? props.user.ProfilePic : 'images/pic.jpeg';
+    const username = props.user?.username;
+    // console.log("From header component ",username);
     const logout = () => {
         props.setCookie('JWtoken', undefined, { path: '/' });
         props.setUser(null);

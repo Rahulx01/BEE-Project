@@ -4,7 +4,7 @@ export default function Signup(props) {
     const [user, setUser] = useState({
         email: "", uname: "", passwd: ""
     })
-    const ProfilePic = 'images/mitr.jpg';
+    const ProfilePic = 'images/mitr.jpeg';
     function handleInputs(e) {
         setUser({ ...user, [e.target.name]: e.target.value });
     }
@@ -40,12 +40,12 @@ export default function Signup(props) {
             body: JSON.stringify({
                 email, uname, passwd
             })
-        })
-            .then(async (res) => {
+        }).then(async (res) => {
                 if (res.ok) {
                     res = await res.json();
-                    props.setUser(res.user);
-                    props.setCookie('JWtoken', res.user.token, { path: '/' });
+                    props.setUser({username : uname});
+                    console.log("From register",res.token);
+                    props.setCookie('JWtoken', res.token, { path: '/'});
                     props.setShowLogin(false);
                 }
             })
@@ -67,7 +67,7 @@ export default function Signup(props) {
             <form>
                 <div className="container">
                     <div className="d-flex flex-column align-items-center">
-                        <img className="rounded-circle" src={ProfilePic} alt="Static" />
+                    <img className="rounded-circle" src={ProfilePic} alt="Static" style={{ maxWidth: '100%', maxHeight: '200px' }} />
                         <br></br>
                         <div className="input-group mb-3">
                             <input type="file" className="form-control" id="inputGroupFile02" ></input>

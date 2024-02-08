@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
-const user = mongoose.Schema({
+const user = new mongoose.Schema({
     email:{
         type:String,
-        require:true
+        require:true,
+        lowercase: true
     },
     username:{
         type:String,
@@ -14,12 +15,12 @@ const user = mongoose.Schema({
         type:String,
         require:true
     },
-    token:{
-        type:String,
-        require:true
+    createdAt: {
+        type: Date,
+        immutable: true,
+        default: () => new Date()
     }
 });
 
 const userSchema = mongoose.model('user',user);
-
 export default userSchema;    
