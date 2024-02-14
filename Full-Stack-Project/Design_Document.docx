@@ -1,0 +1,9 @@
+Online Tambola Web-based Application
+Requirements Document
+1. Introduction
+Online Tambola Application where user can auth into application and create or join the private room or also explore or join into public rooms where they can play game with eachother also groupchat into their current room
+2. Rooms
+There will me mainly two types of room’s:
+    • Private Room: This will be private room which will be made by host and this room can only be join by room code.
+    • Public Room: Host will have to explicitly set room scope to public and then room will be shown to Available room section on website.
+3. Chat box  Each room there will be chat box so players can interact with each other
