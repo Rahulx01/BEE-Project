@@ -32,7 +32,7 @@ export default function Signup(props) {
         //     console.log("There is error converting image to base64");
         // })
         const { email, uname, passwd } = user;
-        fetch("http://localhost:8000/Yudhister", {
+        fetch("http://localhost:8000/register", {
             method: "POST",
             headers: {
                 "content-type": "application/json"

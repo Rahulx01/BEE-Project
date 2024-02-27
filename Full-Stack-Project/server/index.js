@@ -3,28 +3,29 @@ import mongoose from 'mongoose';
 import route from './routes/route.js';
 import cors from 'cors';
 const app = express();
+import socketServer from './socket.js';
 
 //middleware's !
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000" ,
+    origin: "http://localhost:3000",
     // methods: "GET, POST, PUT, DELETE",
     credentials: true
 }));
 
-// app.use(
-//     cors({
-//       origin: 'http://localhost:3000', // Change this to your frontend URL
-//       credentials: true,
-//     })
-//   );
-
 app.use(route);
+
+export const activeRoom = [];
+
+socketServer(activeRoom);
+
 //server
 const PORT = 8000;
 app.listen(PORT, () => {
     console.log(`server is running at port ${PORT}`);
 });
+
+
 
 //Database connectivity
 const passwordForCluster = "UlXNjRSSxv9ZPWoa";
