@@ -7,11 +7,11 @@ export default function Cell(props){
         if(number) {
             if(bgColor === 'whitesmoke'){
                 setbgColor('lightgreen');
-                props.handleClick(props.row, props.col, 85);
+                // props.handleClick(props.row, props.col, 85);
             }
             else{
                 setbgColor('whitesmoke');
-                props.handleClick(props.row, props.col, null);
+                // props.handleClick(props.row, props.col, null);
             }
         }
     }

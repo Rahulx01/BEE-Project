@@ -1,9 +1,15 @@
-import React, {useEffect} from 'react';
+import React from "react";
 export default (props) => {
-    const socket = props.socket;
-    return (
-        <>
-            <h1>hello is this waiting room </h1>
-        </>
-    )
-}
+  return (
+    <>
+      <h1>hello is this waiting room </h1>
+      <button
+        onClick={() => {
+          props.setGameStarted(true);
+        }}
+      >
+        Start Game
+      </button>
+    </>
+  );
+};

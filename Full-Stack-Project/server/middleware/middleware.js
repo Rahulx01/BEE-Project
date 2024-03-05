@@ -16,7 +16,6 @@ export const tokenAuthentication = (req, res, next) => {
 }
 
 export const getUserDetails = (req, res, next) => {
-    console.log(req?.user);
     res.json(req?.user);
     next();
 }

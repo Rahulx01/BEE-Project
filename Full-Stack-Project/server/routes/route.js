@@ -1,6 +1,7 @@
 import express from 'express';
 import { tokenAuthentication, getUserDetails } from '../middleware/middleware.js';
-import { register, login,hostRoom } from '../controllers/controller.js';
+import { register, login } from '../controllers/UserController.js';
+import { hostRoom } from '../controllers/RoomController.js';
 
 const route = express.Router();
 
