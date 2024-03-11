@@ -1,9 +1,47 @@
-#chat-messages{
-    width: 400px;
-    height: 400px;
-    border: 1px solid black;
-}
-
-#input-message-box {
-    border-radius: 5px;
-}
+/* ChatBox.css */
+.chat-box {
+    border: 2px solid #ddd;
+    border-radius: 3%;
+    padding: 10px;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  
+  .message {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .chat-input {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+  
+  .chat-input input {
+    flex-grow: 1;
+    padding: 8px;
+  }
+  
+  .send-btn {
+    margin-left: 8px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  

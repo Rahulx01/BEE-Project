@@ -47,7 +47,9 @@ export default function Home(props) {
         setCookie={setCookie}
         setUser={setUser}
       />
-      <Main user={user} setUser={setUser} setShowLogin={setShowLogin}></Main>
+      <div className="container-fluid min-vh-100">
+        <Main user={user} setUser={setUser} setShowLogin={setShowLogin}></Main>
+      </div>
     </>
   );
 }

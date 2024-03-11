@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 export default function Header(props) {
     const profileImage = props.user && props.user.ProfilePic ? props.user.ProfilePic : 'images/pic.jpeg';
     const username = props.user?.username;
-    // console.log("From header component ",username);
     const logout = () => {
         props.setCookie('JWtoken', undefined, { path: '/' });
         props.setUser(null);
     };
-    
+
     return (
         <>
             <nav style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -22,16 +21,16 @@ export default function Header(props) {
                                 </button>
                             </div>
                             <div>
-                                <Link className="navbar-brand" to="/">Game</Link>
+                                <Link className="navbar-brand" to="/"><h3>Tambola</h3></Link>
                             </div>
                             <div className="collapse navbar-collapse" id="navbarSupportedContent">
                                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                                    <li className="nav-item">
+                                    {/* <li className="nav-item">
                                         <Link className="nav-link active" aria-current="page" to="/">Home</Link>
-                                    </li>
-                                    <li className="nav-item">
+                                    </li> */}
+                                    {/* <li className="nav-item">
                                         <Link className="nav-link active" to="/about">About</Link>
-                                    </li>
+                                    </li> */}
                                 </ul>
                             </div>
                         </div>

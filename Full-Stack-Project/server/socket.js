@@ -1,11 +1,11 @@
 import { Server } from "socket.io";
 import { joinRoom } from "./controllers/RoomController.js";
 import jwt from "jsonwebtoken";
-import { roomBoardNumbers } from "./index.js";
+import { roomStateMap } from "./index.js";
 
 const io = new Server(9000, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://online-tambola.vercel.app/"],
     methods: ["GET", "POST"],
   },
 });
@@ -14,7 +14,34 @@ io.on("connection", (socket) => {
 
   // When user join room
   socket.on("join-room", (roomCode, JWtoken) => {
+    console.log("This is from room ", socket.rooms.size);
+    if (socket.rooms.size > 1) return;
     handleJoinRoom(roomCode, JWtoken, socket);
+  });
+
+  //leave room
+  socket.on("leave-room", (roomCode, JWtoken) => {
+    const username = tokenAuthentication(JWtoken);
+    console.log(username)
+    if (username) {
+      socket.leave(roomCode);
+      socket.to(roomCode).emit("user-left", username);
+    }
+  });
+
+  // Start Game
+  socket.on("game-status", (roomCode, gameActiveStatus, JWtoken) => {
+    const username = tokenAuthentication(JWtoken);
+    console.log(username);
+    if (username) {
+      const room = roomStateMap.get(roomCode);
+      if (room && room.host === username) {
+        console.log("game status changed");
+        room.roomActiveStatus = gameActiveStatus;
+        roomStateMap.set(roomCode, room);
+        socket.to(roomCode).emit("game-status", gameActiveStatus);
+      }
+    }
   });
 
   //Get Ticket
@@ -26,41 +53,49 @@ io.on("connection", (socket) => {
 
   //Claim Ticket
   socket.on("claim-ticket", (claimType, signedTicket, roomCode, JWtoken) => {
-    const username = claimTicket(claimType, signedTicket, JWtoken, roomCode);
+
+    const username = tokenAuthentication(JWtoken);
+
     if (username) {
-      console.log('Claiming Ticket');
-      socket.emit("claim-ticket", claimType);
-      socket.to(roomCode).emit("claim-ticket", claimType, username);
-    }
-    else {
-      // socket.emit("bogey", claimType);
-      socket.to(roomCode).emit("bogey", claimType, username);
+      if (!claimTicket(claimType, signedTicket, JWtoken, roomCode)) {
+        io.to(roomCode).emit("claim-ticket", claimType, username);
+      }
+      else {
+        io.to(roomCode).emit("bogey", claimType, username);
+      }
     }
   });
 
   //when user send chat message
-  socket.on("room-chat-message", (roomCode, message) => {
-    console.log("This is the message", message, roomCode);
-    socket.to(roomCode).emit("room-chat-message", message);
+  socket.on("room-chat-message", (roomCode, message, JWtoken) => {
+    const username = tokenAuthentication(JWtoken);
+    if (username) socket.to(roomCode).emit("room-chat-message", username, message);
+  });
+
+  //when user disconnect
+  socket.on("disconnect", () => {
+    // const roomCode = Array.from(socket.rooms).find((room) => room !== socket.id);
+    // socket.to(roomCode).emit("user-left", username);
+    console.log("user disconnected");
+
   });
 });
 
-function claimTicket(claimType, signedTicket, JWtoken, roomCode) {
-  const username = tokenAuthentication(JWtoken);
+function claimTicket(claimType, signedTicket, roomCode) {
   const ticket = ticketAuthentication(signedTicket).ticket;
-  const board = roomBoardNumbers.get(roomCode);
-  if (username && ticket && board) {
-    if (claimType == 'first-line') {
+  const board = roomStateMap.get(roomCode)?.boardNumbers;
+  if (ticket && board) {
+    if (claimType == 'firstLine') {
       for (let i = 0; i < 9; i++) {
         if (ticket[0][i] && board.has(ticket[0][i])) return false;
       }
     }
-    else if (claimType == 'second-line') {
+    else if (claimType == 'secondLine') {
       for (let i = 0; i < 9; i++) {
         if (ticket[1][i] && board.has(ticket[1][i])) return false;
       }
     }
-    else if (claimType == 'third-line') {
+    else if (claimType == 'thirdLine') {
       for (let i = 0; i < 9; i++) {
         if (ticket[2][i] && board.has(ticket[2][i])) return false;
       }
@@ -72,7 +107,7 @@ function claimTicket(claimType, signedTicket, JWtoken, roomCode) {
         }
       }
     }
-    return username;
+    return true;
   }
   else return false;
 }
@@ -95,13 +130,13 @@ function getTicket() {
 function handleJoinRoom(roomCode, JWtoken, socket) {
   const username = tokenAuthentication(JWtoken);
   if (username) {
-    console.log("new user", username);
     joinRoom(roomCode, username)
       .then((roomDetails) => {
         if (roomDetails) {
+          console.log("room join success");
           socket.join(roomCode);
-          socket.emit("room-join-success", roomDetails.host, roomDetails.members);
-          socket.to(roomCode).emit("new-user", `${username} joined the room`);
+          socket.emit("room-join-success", username == roomDetails.host, roomDetails.members);
+          socket.to(roomCode).emit("new-user", username);
         }
         else socket.emit("room-join-failed");
       })

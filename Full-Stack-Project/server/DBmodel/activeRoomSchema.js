@@ -1,15 +1,19 @@
 import mongoose from 'mongoose';
 
 const activeRoom = new mongoose.Schema({
-    roomCode:{
-        type:String,
-        require:true
+    roomCode: {
+        type: String,
+        require: true
     },
-    host:{
-        type:String,
-        require:true
+    host: {
+        type: String,
+        require: true
     },
     members: [String],
+    firstLine: String,
+    secondLine: String,
+    thirdLine: String,
+    house: String,
     createdAt: {
         type: Date,
         immutable: true,
@@ -17,6 +21,6 @@ const activeRoom = new mongoose.Schema({
     }
 });
 
-const activeRoomSchema = mongoose.model('Active-Room',activeRoom);
+const activeRoomSchema = mongoose.model('Active-Room', activeRoom);
 
 export default activeRoomSchema;

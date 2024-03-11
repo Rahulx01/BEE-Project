@@ -1,5 +1,7 @@
 import React from 'react';
+import './main.css';
 import { useNavigate } from 'react-router-dom';
+
 export default (props) => {
     const navigate = useNavigate();
     const hostRoom = async () => {
@@ -30,9 +32,13 @@ export default (props) => {
     }
     return (
         <>
-            <h1>I am main</h1>
-            <button type="button" className="btn btn-secondary" onClick={hostRoom}>host</button>
-            <button type="button" className="btn btn-secondary" onClick={joinRoom}>join</button>
+            <div className="d-flex flex-column align-items-center vh-100 justify-content-start mt-4">
+                <div><h3>Welcome to online tambola</h3></div>
+                <div>
+                    <button className="button-74 mr-2" role="button" onClick={hostRoom}>host</button>
+                    <button className="button-74" role="button" onClick={joinRoom}>join</button>
+                </div>
+            </div>
         </>
     )
 }
