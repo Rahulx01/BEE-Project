@@ -5,13 +5,16 @@ import { hostRoom } from '../controllers/RoomController.js';
 
 const route = express.Router();
 
-    
+
 // Define routes...
 
+route.get('/', (req, res) => {
+    res.send('This is default route');
+});
 route.get('/me', tokenAuthentication, getUserDetails);
 route.post('/register', register);
 route.post('/login', login);
-route.get("/host",tokenAuthentication,hostRoom);
+route.get("/host", tokenAuthentication, hostRoom);
 
 
 
