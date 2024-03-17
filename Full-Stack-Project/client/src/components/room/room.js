@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import WaitingRoom from "./waitingSection/waitingRoom.js";
 import ChatBox from "./chatBox/chatBox";
-import GameRoom from "./gameSection/gameSection";
+import GameSection from "./gameSection/gameSection";
 import { useParams } from "react-router-dom";
 import { socket } from "../../socket.js";
 import { toast } from 'react-toastify';
@@ -23,7 +23,6 @@ export default function Room() {
     socket.emit("join-room", roomCode, document.cookie.replace("JWtoken=", ""));
 
     const handleRoomJoinSuccess = (isHost, members) => {
-      console.log("User is joining");
       setRoomDetails({ roomCode: roomCode, isHost: isHost, members: members });
     };
 
@@ -59,7 +58,7 @@ export default function Room() {
     socket.on("new-user", handleNewUser);
     socket.on("user-left", handleUserLeft);
     socket.on("game-status", handleGameStatus);
-
+    // socket.on("game-over",);
     return () => {
       console.log("Leaving room");
       socket.emit('leave-room', roomCode, document.cookie.replace("JWtoken=", ""));
@@ -70,6 +69,7 @@ export default function Room() {
       socket.off("new-user", handleNewUser);
       socket.off("user-left", handleUserLeft);
       socket.off("game-status", handleGameStatus);
+      // socket.off("game-over");
     };
   }, [roomCode, navigate]);
 
@@ -91,13 +91,14 @@ export default function Room() {
         <div className="row">
           <div className="col-lg-8 col-md-12 order-md-1">
             {gameActiveStatus ? (
-              <GameRoom roomDetails={roomDetails}></GameRoom>
+              <GameSection roomDetails={roomDetails}></GameSection>
             ) : (
               <WaitingRoom
                 roomDetails={roomDetails}
                 setGameActiveStatus={setGameActiveStatus}
               ></WaitingRoom>
             )}
+
           </div>
           <div className="col-lg-4 col-md-12 order-md-2">
             <ChatBox roomDetails={roomDetails}></ChatBox>

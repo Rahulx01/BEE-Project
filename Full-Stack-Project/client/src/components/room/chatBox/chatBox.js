@@ -3,7 +3,6 @@ import "./chatbox.css";
 import { socket } from "../../../socket";
 
 export default ({ roomDetails }) => {
-  console.log("This is chatbox");
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
@@ -15,23 +14,11 @@ export default ({ roomDetails }) => {
     }
   };
 
-
-
   useEffect(() => {
-    // const initialMessages = generateRandomMessages(18);
-    // setMessages(initialMessages);
     socket.on("room-chat-message", (username, message) => {
       setMessages((prevMessages) => [...prevMessages, { user: username, text: message }]);
     });
-  }, [socket]);
-
-  const generateRandomMessages = (count) => {
-    const messages = [];
-    for (let i = 0; i < count; i++) {
-      messages.push({ user: "User", text: `This is message ${i}` });
-    }
-    return messages;
-  };
+  }, []); //removed socket from dependency
 
   return (
     <div className="chat-box d-flex flex-column">

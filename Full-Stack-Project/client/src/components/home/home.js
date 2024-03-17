@@ -10,7 +10,6 @@ export default function Home(props) {
 
   useEffect(() => {
     try {
-      console.log("This is from home.js", document.cookie);
       fetch("http://localhost:8000/me", {
         method: "GET",
         credentials: "include",

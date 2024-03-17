@@ -12,7 +12,6 @@ const GameSection = (props) => {
 
     useEffect(() => {
         console.log('This is the claim type', claimTypes);
-        // claimTypes?.thirdLine;
     }, [claimTypes]);
 
     const claimTicket = (claimType) => {
@@ -25,8 +24,10 @@ const GameSection = (props) => {
     };
 
     const handleClaimUpdate = (claimType, username) => {
-        setClaimTypes({ ...claimTypes, [claimType]: username });
-        console.log('This is the claim type', claimTypes);
+        setClaimTypes(prevClaimTypes => ({
+            ...prevClaimTypes,
+            [claimType]: username
+        }));
     };
 
     const handleBogey = (claimType, username) => {
@@ -45,6 +46,9 @@ const GameSection = (props) => {
         socket.on('claim-ticket', onClaimUpdate);
         socket.on('bogey', onBogey);
         socket.on('new-number', (number) => setPrevNumber(number));
+        // socket.on('board-complete', () => {
+        //     toast.success('Board is complete');
+        // });
         return () => {
             // Clean up event listeners
             socket.off('ticket', onTicketUpdate);
@@ -63,16 +67,16 @@ const GameSection = (props) => {
                 </div>
             </div>
 
-            <div className="mb-4 d-flex justify-content-center">
+            <div className="mb-4 d-flex justify-content-center" >
                 <Ticket ticket={ticket}></Ticket>
             </div>
 
             <div className="mb-4">
                 <div className="d-flex justify-content-around">
-                    <button className="btn btn-primary" onClick={() => claimTicket("firstLine")}>First Line</button>
-                    <button className="btn btn-primary" onClick={() => claimTicket("secondLine")}>Second Line</button>
-                    <button className="btn btn-primary" onClick={() => claimTicket("thirdLine")}>Third Line</button>
-                    <button className="btn btn-primary" onClick={() => claimTicket("house")}>House</button>
+                    {!claimTypes.firstLine && (<button className="btn btn-success" onClick={() => claimTicket("firstLine")}>First Line</button>)}
+                    {!claimTypes.secondLine && (<button className="btn btn-success" onClick={() => claimTicket("secondLine")}>Second Line</button>)}
+                    {!claimTypes.thirdLine && (<button className="btn btn-success" onClick={() => claimTicket("thirdLine")}>Third Line</button>)}
+                    {!claimTypes.house && (<button className="btn btn-success" onClick={() => claimTicket("house")}>House</button>)}
                 </div>
             </div>
 

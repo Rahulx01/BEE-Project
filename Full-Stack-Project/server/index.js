@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import route from "./routes/route.js";
 import cors from "cors";
 import dotenv from 'dotenv';
-import io from "./socket.js";
 
 dotenv.config();
 
@@ -16,23 +15,12 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://online-tambola.vercel.app/"],
+    origin: ["http://localhost:3000"],
     credentials: true,
   })
 );
 
 app.use(route);
-
-export const roomStateMap = new Map();
-
-setInterval(() => {
-  roomStateMap.forEach((room, roomCode) => {
-    if (room.roomActiveStatus) {
-      const boardSet = room.boardNumbers;
-      console.log(roomCode);
-    }
-  });
-}, 5000);
 
 
 //server creation

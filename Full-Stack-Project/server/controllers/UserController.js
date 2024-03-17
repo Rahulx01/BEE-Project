@@ -1,7 +1,12 @@
 import userSchema from '../DBmodel/userSchema.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const jwtForUser = process.env.JWT_KEY_FOR_AUTH;
 
 export const register = async (req, res) => {
+    console.log("This is from register");
     try {
         const { email, uname, passwd } = req.body;
         if (!email || !uname || !passwd) {
@@ -17,35 +22,35 @@ export const register = async (req, res) => {
             password: passwd
         });
         await newUser.save();
-        res.status(201).json({token: token});
+        res.status(201).json({ token: token });
     } catch (err) {
         console.log("This is from register error ", err);
     }
 }
 
 export const login = async (req, res) => {
-    try{
+    try {
         const user = await userSchema.findOne({ username: req.body.uname, password: req.body.passwd });
         if (user) {
             // Username and password combination exists in MongoDB
             let token = generateToken(req.body.uname, req.body.passwd);
-            res.json({token:token});
+            res.json({ token: token });
         } else {
             // Username and password combination does not exist in MongoDB
             return res.status(404).json({ msg: "Invalid username or password." });
         }
     }
-    catch(err){
+    catch (err) {
         console.log("This is from login error ", err);
     }
 }
 
-function generateToken(uname, passwd){
+function generateToken(uname, passwd) {
     let token;
-    try{
-        token = jwt.sign({username: uname, passwd: passwd}, "THISISMYSECRETKEYFORMYSECRETPROJECT");
+    try {
+        token = jwt.sign({ username: uname, passwd: passwd }, jwtForUser);
     }
-    catch(err){
+    catch (err) {
         console.log(err);
     }
     return token;
