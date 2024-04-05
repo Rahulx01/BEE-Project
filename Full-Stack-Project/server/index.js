@@ -8,7 +8,7 @@ dotenv.config();
 
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;
-const EXPRESS_SERVER_PORT = process.env.EXPRESS_SERVER_PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
@@ -24,8 +24,8 @@ app.use(route);
 
 
 //server creation
-app.listen(EXPRESS_SERVER_PORT, () => {
-  console.log(`server is running at port ${EXPRESS_SERVER_PORT}`);
+app.listen(PORT, () => {
+  console.log(`server is running at port ${PORT}`);
 });
 
 // Database connectivity
