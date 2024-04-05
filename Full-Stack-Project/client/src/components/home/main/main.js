@@ -7,7 +7,7 @@ export default (props) => {
     const hostRoom = async () => {
         if (props.user) {
             try {
-                fetch("http://localhost:8000/host", {
+                fetch(`${process.env.REACT_APP_API_KEY}/host`, {
                     method: "GET",
                     credentials: "include"
                 }).then(res => {
@@ -32,7 +32,7 @@ export default (props) => {
     }
     return (
         <>
-            <div className="d-flex flex-column align-items-center vh-100 justify-content-start mt-4">
+            <div className="d-flex flex-column align-items-center  justify-content-start mt-4">
                 <div><h3>Welcome to online tambola</h3></div>
                 <div>
                     <button className="button-74 mr-2" role="button" onClick={hostRoom}>host</button>

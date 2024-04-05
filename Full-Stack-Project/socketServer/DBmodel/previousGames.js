@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const activeRoom = new mongoose.Schema({
+const previousRoom = new mongoose.Schema({
     roomCode: {
         type: String,
         require: true
@@ -26,20 +26,6 @@ const activeRoom = new mongoose.Schema({
         type: String,
         default: ""
     },
-    roomActiveStatus: {
-        type: Boolean,
-        default: false
-    },
-    boardNumbers: {
-        type: [Number],
-        default: () => {
-            const numberArr = new Array(90);
-            for (let i = 1; i <= 90; i++) {
-                numberArr[i - 1] = i;
-            }
-            return numberArr;
-        }
-    },
     createdAt: {
         type: Date,
         immutable: true,
@@ -47,6 +33,7 @@ const activeRoom = new mongoose.Schema({
     }
 });
 
-const activeRoomSchema = mongoose.model('Active-Room', activeRoom);
+const previousRoomSchema = mongoose.model('Previous-Room', previousRoom);
 
-export default activeRoomSchema;
+
+export default previousRoomSchema;

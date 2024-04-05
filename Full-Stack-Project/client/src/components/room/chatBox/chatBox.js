@@ -8,7 +8,7 @@ export default ({ roomDetails }) => {
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== "") {
-      socket.emit("room-chat-message", roomDetails.roomCode, newMessage, document.cookie.replace("JWtoken=", ""));
+      socket.emit("room-chat-message", roomDetails.roomCode, newMessage);
       setMessages((prevMessages) => [...prevMessages, { user: "You", text: newMessage }]);
       setNewMessage("");
     }

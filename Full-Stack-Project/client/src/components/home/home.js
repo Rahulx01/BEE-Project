@@ -3,6 +3,7 @@ import Header from "./header/header";
 import Login from "./login/login";
 import Main from "./main/main";
 import { useCookies } from "react-cookie";
+
 export default function Home(props) {
   const [user, setUser] = useState(null);
   const [cookie, setCookie] = useCookies(null);
@@ -10,7 +11,7 @@ export default function Home(props) {
 
   useEffect(() => {
     try {
-      fetch("http://localhost:8000/me", {
+      fetch(`${process.env.REACT_APP_API_KEY}/me`, {
         method: "GET",
         credentials: "include",
       })
@@ -46,7 +47,7 @@ export default function Home(props) {
         setCookie={setCookie}
         setUser={setUser}
       />
-      <div className="container-fluid min-vh-100">
+      <div className="container-fluid ">
         <Main user={user} setUser={setUser} setShowLogin={setShowLogin}></Main>
       </div>
     </>

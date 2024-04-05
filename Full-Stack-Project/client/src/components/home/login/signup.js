@@ -32,7 +32,7 @@ export default function Signup(props) {
         //     console.log("There is error converting image to base64");
         // })
         const { email, uname, passwd } = user;
-        fetch("http://localhost:8000/register", {
+        fetch(`${process.env.REACT_APP_API_KEY}/register`, {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -41,14 +41,14 @@ export default function Signup(props) {
                 email, uname, passwd
             })
         }).then(async (res) => {
-                if (res.ok) {
-                    res = await res.json();
-                    props.setUser({username : uname});
-                    console.log("From register",res.token);
-                    props.setCookie('JWtoken', res.token, { path: '/'});
-                    props.setShowLogin(false);
-                }
-            })
+            if (res.ok) {
+                res = await res.json();
+                props.setUser({ username: uname });
+                console.log("From register", res.token);
+                props.setCookie('JWtoken', res.token, { path: '/' });
+                props.setShowLogin(false);
+            }
+        })
             .catch((err) => {
                 console.log("Shit the error occured ", err);
             })
@@ -67,7 +67,7 @@ export default function Signup(props) {
             <form>
                 <div className="container">
                     <div className="d-flex flex-column align-items-center">
-                    <img className="rounded-circle" src={ProfilePic} alt="Static" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                        <img className="rounded-circle" src={ProfilePic} alt="Static" style={{ maxWidth: '100%', maxHeight: '200px' }} />
                         <br></br>
                         <div className="input-group mb-3">
                             <input type="file" className="form-control" id="inputGroupFile02" ></input>

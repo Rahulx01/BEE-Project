@@ -12,7 +12,7 @@ export default function Signin(props) {
 
     const login = async (e) => {
         const { uname, passwd } = user;
-        fetch("http://localhost:8000/login", {
+        fetch(`${process.env.REACT_APP_API_KEY}/login`, {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -21,18 +21,18 @@ export default function Signin(props) {
                 uname, passwd
             })
         }).then(res => {
-            if(res.ok) {
+            if (res.ok) {
                 res.json()
-                .then((data) => {
-                    props.setUser({username:uname});
-                    console.log(data.token);
-                    props.setCookie('JWtoken', data.token, { path: '/' });
-                    props.setShowLogin(false);
-                    
-                });
+                    .then((data) => {
+                        props.setUser({ username: uname });
+                        console.log(data.token);
+                        props.setCookie('JWtoken', data.token, { path: '/' });
+                        props.setShowLogin(false);
+
+                    });
             }
         }).catch((err) => {
-            console.log("Shit error occured ",err);
+            console.log("Shit error occured ", err);
         });
     }
 

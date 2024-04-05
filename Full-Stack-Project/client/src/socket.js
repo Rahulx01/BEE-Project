@@ -1,5 +1,3 @@
 import { io } from "socket.io-client";
 
-const WS_URL = "ws://localhost:9000";
-
-export const socket = io(WS_URL);
+export const socket = io(process.env.REACT_APP_WS_URL);

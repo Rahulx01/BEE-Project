@@ -11,13 +11,13 @@ export default function App() {
   }, []);
   return (
     <div className="App">
-      <ToastContainer />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home></Home>}></Route>
           <Route path="/room/:id" element={<Room></Room>}></Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer position="bottom-left" />
     </div>
   );
 }

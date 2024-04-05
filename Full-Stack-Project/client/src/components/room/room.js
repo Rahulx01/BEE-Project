@@ -15,15 +15,25 @@ export default function Room() {
     members: [],
   });
   const [gameActiveStatus, setGameActiveStatus] = useState(false);
-  useEffect(() => {
-    socket.emit('game-status', roomCode, gameActiveStatus, document.cookie.replace("JWtoken=", ''));
-  }, [gameActiveStatus]);
+
+  const setGameStatus = (gameActiveStatus) => {
+    setGameActiveStatus(gameActiveStatus);
+    socket.emit("game-status", roomCode, gameActiveStatus);
+  }
+
+  // const changeControl = () => {
+  //   setGameActiveStatus(true);
+
+  // }
 
   useEffect(() => {
+
     socket.emit("join-room", roomCode, document.cookie.replace("JWtoken=", ""));
 
-    const handleRoomJoinSuccess = (isHost, members) => {
+    const handleRoomJoinSuccess = (isHost, members, roomActiveStatus) => {
       setRoomDetails({ roomCode: roomCode, isHost: isHost, members: members });
+      // console.log("Room Active Status", roomActiveStatus);
+      // setGameActiveStatus(roomActiveStatus);
     };
 
     const handleRoomJoinFailed = () => {
@@ -41,7 +51,6 @@ export default function Room() {
     };
 
     const handleUserLeft = (username) => {
-      console.log(username);
       setRoomDetails((prevRoomDetails) => ({
         ...prevRoomDetails,
         members: prevRoomDetails.members.filter((member) => member !== username),
@@ -61,7 +70,7 @@ export default function Room() {
     // socket.on("game-over",);
     return () => {
       console.log("Leaving room");
-      socket.emit('leave-room', roomCode, document.cookie.replace("JWtoken=", ""));
+      socket.emit('leave-room', roomCode);
 
       // Cleanup event listeners
       socket.off("room-join-success", handleRoomJoinSuccess);
@@ -71,7 +80,7 @@ export default function Room() {
       socket.off("game-status", handleGameStatus);
       // socket.off("game-over");
     };
-  }, [roomCode, navigate]);
+  }, []); //remove dependecy if error occured add this [roomCode, navigate]
 
   return (
     <>
@@ -95,7 +104,7 @@ export default function Room() {
             ) : (
               <WaitingRoom
                 roomDetails={roomDetails}
-                setGameActiveStatus={setGameActiveStatus}
+                setGameStatus={setGameStatus}
               ></WaitingRoom>
             )}
 

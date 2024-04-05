@@ -10,12 +10,8 @@ const GameSection = (props) => {
     const [claimTypes, setClaimTypes] = useState({ firstLine: false, secondLine: false, thirdLine: false, house: false });
     const [prevNumber, setPrevNumber] = useState(false);
 
-    useEffect(() => {
-        console.log('This is the claim type', claimTypes);
-    }, [claimTypes]);
-
     const claimTicket = (claimType) => {
-        socket.emit('claim-ticket', claimType, signedTicket, roomCode, document.cookie.replace("JWtoken=", ""));
+        socket.emit('claim-ticket', claimType, signedTicket, roomCode);
     };
 
     const handleTicketUpdate = (ticket, signedTicket) => {
@@ -36,6 +32,13 @@ const GameSection = (props) => {
     };
 
     useEffect(() => {
+        console.log("Ststus is ", props.roomDetails.isHost);
+        const intervalId = props.roomDetails.isHost ?
+            (setInterval(() => {
+                console.log("Interval is running", props.roomDetails.isHost);
+                socket.emit("get-new-number", roomCode);
+            }, 5000)) : null;
+
         socket.emit('get-ticket');
 
         const onTicketUpdate = (ticket, signedTicket) => handleTicketUpdate(ticket, signedTicket);
@@ -45,12 +48,13 @@ const GameSection = (props) => {
         socket.on('ticket', onTicketUpdate);
         socket.on('claim-ticket', onClaimUpdate);
         socket.on('bogey', onBogey);
-        socket.on('new-number', (number) => setPrevNumber(number));
-        // socket.on('board-complete', () => {
-        //     toast.success('Board is complete');
-        // });
+        socket.on('new-number', (number) => {
+            setPrevNumber(number);
+        });
+
         return () => {
             // Clean up event listeners
+            clearInterval(intervalId);
             socket.off('ticket', onTicketUpdate);
             socket.off('claim-ticket', onClaimUpdate);
             socket.off('bogey', onBogey);

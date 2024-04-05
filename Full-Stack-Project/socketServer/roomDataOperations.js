@@ -1,66 +1,59 @@
-import jwt from "jsonwebtoken";
-import dotenv from 'dotenv';
-import mongoose, { set } from "mongoose";
-import activeRoomSchema from "./DBmodel/activeRoomSchema.js";
+import { ticketAuthentication } from './socketUtils.js';
+import {
+    joinRoom,
+    getBoardNumbers,
+    setGameStatus as sgs,
+    getRoomDetails,
+    abortRoom
+} from './controllers/controller.js';
 
 
-dotenv.config();
-const jwtForTicket = process.env.JWT_KEY_FOR_TICKET;
-const jwtForAuth = process.env.JWT_KEY_FOR_AUTH;
+export function handleJoinRoom(roomCode, username, socket) {
+    console.log(username, socket.id);
+    joinRoom(roomCode, username)
+        .then((roomDetails) => {
+            if (roomDetails) {
+                socket.join(roomCode);
+                socket.emit("room-join-success", username == roomDetails.host, roomDetails.members, roomDetails.roomActiveStatus);
+                socket.to(roomCode).emit("new-user", username);
+            }
+            else socket.emit("room-join-failed");
+        })
+        .catch((e) => socket.emit("room-join-failed"));
+}
 
-//mongoDB connectivity
-const DB_USERNAME = process.env.DB_USERNAME;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const URL = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@tambolacluster.b515j1j.mongodb.net/?retryWrites=true&w=majority`;
+export function setGameStatus(roomCode, gameActiveStatus, username) {
+    return sgs(roomCode, gameActiveStatus, username);
+}
 
-mongoose
-    .connect(URL)
-    .then(() => {
-        console.log("Connected to MongoDB");
-    })
-    .catch((err) => {
-        console.error("Error connecting to MongoDB:", err);
-    });
+//Abort room on :- claim exausted, all members left, board exausted
 
-/*
-setInterval(() => {
-activeRoomSchema.find({ roomActiveStatus: true }).then((rooms) => {
-    console.log("Rooms : ", rooms);
-})
-    .catch((e) => {
-        console.log("Error while getting rooms : ", e);
-    })
-}, 6000);*/
-
-export const setGameStatus = async (roomCode, status, username) => {
+export async function getRandomNumber(roomCode) {
+    abortRoom(roomCode);
     try {
-        const roomDetails = await activeRoomSchema.findOne({ roomCode: roomCode });
-        if (roomDetails.host === username) {
-            roomDetails.roomActiveStatus = status;
-            await roomDetails.save();
-            return true;
+        const roomDetails = await getRoomDetails(roomCode);
+        if (roomDetails) {
+            const boardNumbers = roomDetails.boardNumbers;
+            if (boardNumbers.length === 0) {
+                //to abort the room
+            }
+            else {
+                const randomIndex = Math.floor(Math.random() * boardNumbers.length);
+                const randomNumber = boardNumbers[randomIndex];
+                boardNumbers.splice(randomIndex, 1);
+                roomDetails.save();
+                return randomNumber;
+            }
         }
-        else return false;
     }
     catch (e) {
-        console.log("Error while setting game status : ", e);
-        return false;
+        console.log("Error while getting random number : ", e);
     }
-};
+}
 
-export const getBoardNumbers = async (roomCode) => {
-    try {
-        const roomDetails = await activeRoomSchema.findOne({ roomCode: roomCode });
-        return roomDetails?.boardNumbers;
-    }
-    catch (e) {
-        console.log("Error while getting board numbers : ", e);
-        return false;
-    }
-
-};
-
-export function claimTicket(claimType, signedTicket, board) {
+export async function claimTicket(claimType, signedTicket, roomCode) {
+    const roomDetails = await getRoomDetails(roomCode);
+    const board = roomDetails.boardNumbers;
     const ticket = ticketAuthentication(signedTicket).ticket;
     if (ticket && board) {
         if (claimType == 'firstLine') {
@@ -90,55 +83,30 @@ export function claimTicket(claimType, signedTicket, board) {
     else return false;
 }
 
-export function handleJoinRoom(roomCode, JWtoken, socket) {
-    const username = tokenAuthentication(JWtoken);
-    if (username) {
-        joinRoom(roomCode, username)
+export function handleLeaveRoom(io, socket) {
+
+    // console.log(members);
+    const roomCode = socket.roomCode;
+    const username = socket.username;
+    socket.leave(roomCode);
+    socket.to(roomCode).emit("user-left", username);
+    if (roomCode) {
+        getRoomDetails(roomCode)
             .then((roomDetails) => {
-                if (roomDetails) {
-                    socket.join(roomCode);
-                    socket.emit("room-join-success", username == roomDetails.host, roomDetails.members);
-                    socket.to(roomCode).emit("new-user", username);
+                if (roomDetails.host == username) {
+                    let newHost;
+                    while (!newHost) {
+                        newHost = roomDetails.members[Math.floor(Math.random() * roomDetails.members.length)];
+                        if (newHost == username) newHost = null;
+                    }
+                    socket.to(roomCode).emit("new-host", newHost);
+                    roomDetails.host = newHost;
+                    roomDetails.save();
+
                 }
-                else socket.emit("room-join-failed");
             })
-            .catch((e) => socket.emit("room-join-failed"));
-    } else socket.emit("room-join-failed");
-}
-
-export function tokenAuthentication(JWtoken) {
-    try {
-        const user = jwt.verify(JWtoken, jwtForAuth);
-        return user?.username;
-    } catch (err) {
-        console.log(err);
-        return false;
-    }
-}
-
-const joinRoom = async (roomCode, username) => {
-    try {
-        const roomDetails = await activeRoomSchema.findOne({ roomCode: roomCode });
-        const members = roomDetails.members;
-        for (let i = 0; i < members.length; i++) {
-            if (members[i] === username) return roomDetails;
-        }
-        if (roomDetails.roomActiveStatus) return null;
-        members.push(username);
-        await roomDetails.save();
-        return roomDetails;
-    }
-    catch (e) {
-        console.log("Error while joining room : ", e);
-    }
-}
-
-function ticketAuthentication(signedTicket) {
-    try {
-        const ticket = jwt.verify(signedTicket, jwtForTicket);
-        return ticket;
-    }
-    catch (err) {
-        return false;
+            .catch((e) => {
+                console.log("Error while getting room details : ", e);
+            });
     }
 }

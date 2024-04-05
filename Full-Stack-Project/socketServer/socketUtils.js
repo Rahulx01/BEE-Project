@@ -1,3 +1,30 @@
+import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
+
+dotenv.config();
+const jwtForTicket = process.env.JWT_KEY_FOR_TICKET;
+const jwtForAuth = process.env.JWT_KEY_FOR_AUTH;
+
+export function tokenAuthentication(JWtoken) {
+    try {
+        const user = jwt.verify(JWtoken, jwtForAuth);
+        return user?.username;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
+export function ticketAuthentication(signedTicket) {
+    try {
+        const ticket = jwt.verify(signedTicket, jwtForTicket);
+        return ticket;
+    }
+    catch (err) {
+        return false;
+    }
+}
+
 export function getTicket() {
     let uniqueNumbers = new Set();
     const ticket = new Array(3).fill(null).map(col => new Array(9).fill(null));
