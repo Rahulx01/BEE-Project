@@ -13,8 +13,8 @@ import {
 
 
 dotenv.config();
-
-const io = new Server(9000, {
+const PORT = process.env.PORT || 9000;
+const io = new Server(PORT, {
     cors: {
         // origin: ['*'],
         methods: ["GET", "POST"],
@@ -105,7 +105,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("get-new-number", (roomCode) => {
-        console.log("heleluiah", io.sockets.adapter.rooms.get(roomCode));
         const username = socket.username;
         if (username) {
             getRandomNumber(roomCode)
@@ -126,3 +125,5 @@ io.on("connection", (socket) => {
 
     });
 });
+
+export default io;
