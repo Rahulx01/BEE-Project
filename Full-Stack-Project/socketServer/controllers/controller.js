@@ -61,7 +61,6 @@ export async function abortRoom(roomCode) {
     try {
         //yet to implement
         const roomDetails = await activeRoomSchema.findOne({ roomCode: roomCode });
-        console.log("shs", roomDetails.members);
         const previousRoom = new previousRoomSchema({
             roomCode: roomDetails.roomCode,
             host: roomDetails.host,

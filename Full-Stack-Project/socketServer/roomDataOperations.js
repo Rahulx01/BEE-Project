@@ -1,7 +1,6 @@
 import { ticketAuthentication } from './socketUtils.js';
 import {
     joinRoom,
-    getBoardNumbers,
     setGameStatus as sgs,
     getRoomDetails,
     abortRoom
@@ -29,7 +28,6 @@ export function setGameStatus(roomCode, gameActiveStatus, username) {
 //Abort room on :- claim exausted, all members left, board exausted
 
 export async function getRandomNumber(roomCode) {
-    abortRoom(roomCode);
     try {
         const roomDetails = await getRoomDetails(roomCode);
         if (roomDetails) {

@@ -6,14 +6,13 @@ dotenv.config();
 const jwtForUser = process.env.JWT_KEY_FOR_AUTH;
 
 export const register = async (req, res) => {
-    console.log("This is from register");
     try {
         const { email, uname, passwd } = req.body;
         if (!email || !uname || !passwd) {
             return res.status(400).json({ error: "Payload missing" });
         }
         if (await userSchema.findOne({ username: uname })) {
-            return res.status(409);
+            return res.status(409).json({ error: "Username already exists" });
         }
         let token = generateToken(uname, passwd);
         const newUser = new userSchema({
@@ -22,7 +21,15 @@ export const register = async (req, res) => {
             password: passwd
         });
         await newUser.save();
-        res.status(201).json({ token: token });
+        // const options = {
+        //     expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+        //     sameSite: "none",
+        //     httpOnly: true,
+        //     secure: true,
+        // };
+        console.log("This is from register token ", token);
+        res.cookie("token", token);
+        return res.sendStatus(200);
     } catch (err) {
         console.log("This is from register error ", err);
     }
@@ -34,16 +41,25 @@ export const login = async (req, res) => {
         if (user) {
             // Username and password combination exists in MongoDB
             let token = generateToken(req.body.uname, req.body.passwd);
-            res.json({ token: token });
+            // const options = {
+            //     expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+            //     sameSite: "none",
+            //     httpOnly: true,
+            //     secure: true,
+            // };
+            res.cookie("token", token);
+            return res.sendStatus(200);
         } else {
             // Username and password combination does not exist in MongoDB
             return res.status(404).json({ msg: "Invalid username or password." });
         }
     }
     catch (err) {
-        console.log("This is from login error ", err);
+        console.log("Error occurred during login:", err);
+        return res.status(500).json({ msg: "Internal server error" });
     }
 }
+
 
 function generateToken(uname, passwd) {
     let token;

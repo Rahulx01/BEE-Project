@@ -9,7 +9,7 @@ export default (props) => {
             try {
                 fetch(`${process.env.REACT_APP_API_KEY}/host`, {
                     method: "GET",
-                    credentials: "include"
+                    credentials: "include",
                 }).then(res => {
                     res.json().then(resBody => {
                         navigate(`/room/${resBody?.roomCode}`);

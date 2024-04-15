@@ -28,7 +28,7 @@ export default function Room() {
 
   useEffect(() => {
 
-    socket.emit("join-room", roomCode, document.cookie.replace("JWtoken=", ""));
+    socket.emit("join-room", roomCode, document.cookie.replace("token=", ""));
 
     const handleRoomJoinSuccess = (isHost, members, roomActiveStatus) => {
       setRoomDetails({ roomCode: roomCode, isHost: isHost, members: members });

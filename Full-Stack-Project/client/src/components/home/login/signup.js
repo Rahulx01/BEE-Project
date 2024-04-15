@@ -8,52 +8,26 @@ export default function Signup(props) {
     function handleInputs(e) {
         setUser({ ...user, [e.target.name]: e.target.value });
     }
-    // function convertImageToBase64(file) {
-    //     return new Promise((resolve, reject) => {
-    //         const reader = new FileReader();
-    //         reader.onloadend = () => {
-    //             if (reader.readyState === 2) {
-    //                 resolve(reader.result);
-    //             } else {
-    //                 reject(new Error('Failed to read the file.'));
-    //             }
-    //         };
-    //         reader.readAsDataURL(file);
-    //     });
-    // }
     async function register() {
-        // var ProfilePic = document.getElementById('inputGroupFile02').files[0];
-        // await convertImageToBase64(ProfilePic)
-        // .then((imageString) =>{
-        //     ProfilePic = imageString;
-        // })
-        // .catch((error) => {
-        //     ProfilePic = null;
-        //     console.log("There is error converting image to base64");
-        // })
         const { email, uname, passwd } = user;
         fetch(`${process.env.REACT_APP_API_KEY}/register`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
                 email, uname, passwd
             })
-        }).then(async (res) => {
+        }).then((res) => {
             if (res.ok) {
-                res = await res.json();
                 props.setUser({ username: uname });
-                console.log("From register", res.token);
-                props.setCookie('JWtoken', res.token, { path: '/' });
                 props.setShowLogin(false);
             }
         })
             .catch((err) => {
-                console.log("Shit the error occured ", err);
+                console.log("the error occured ", err);
             })
-
-        // const res = await res.json();
 
     }
 

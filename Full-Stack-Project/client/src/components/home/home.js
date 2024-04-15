@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import Header from "./header/header";
 import Login from "./login/login";
 import Main from "./main/main";
-import { useCookies } from "react-cookie";
 
 export default function Home(props) {
   const [user, setUser] = useState(null);
-  const [cookie, setCookie] = useCookies(null);
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
@@ -37,14 +35,12 @@ export default function Home(props) {
           showLogin={showLogin}
           setShowLogin={setShowLogin}
           setUser={setUser}
-          setCookie={setCookie}
         />
       )}
       <Header
         showLogin={showLogin}
         setShowLogin={setShowLogin}
         user={user}
-        setCookie={setCookie}
         setUser={setUser}
       />
       <div className="container-fluid ">

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import route from "./routes/route.js";
 import cors from "cors";
 import dotenv from 'dotenv';
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const DB_USERNAME = process.env.DB_USERNAME;
@@ -13,9 +13,10 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
-    // origin: ["*"],
+    origin: ["http://localhost:3000", "*"],
     credentials: true,
   })
 );

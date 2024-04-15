@@ -5,7 +5,7 @@ export default function Header(props) {
     const profileImage = props.user && props.user.ProfilePic ? props.user.ProfilePic : 'images/pic.jpeg';
     const username = props.user?.username;
     const logout = () => {
-        props.setCookie('JWtoken', undefined, { path: '/' });
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         props.setUser(null);
     };
 

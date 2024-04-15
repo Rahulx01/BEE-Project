@@ -7,32 +7,26 @@ export default function Signin(props) {
 
     function handleInputs(e) {
         setUser({ ...user, [e.target.name]: e.target.value });
-
     }
 
     const login = async (e) => {
         const { uname, passwd } = user;
         fetch(`${process.env.REACT_APP_API_KEY}/login`, {
             method: "POST",
+            credentials: "include",
             headers: {
-                "content-type": "application/json"
+                "content-type": "application/json",
             },
             body: JSON.stringify({
                 uname, passwd
             })
         }).then(res => {
             if (res.ok) {
-                res.json()
-                    .then((data) => {
-                        props.setUser({ username: uname });
-                        console.log(data.token);
-                        props.setCookie('JWtoken', data.token, { path: '/' });
-                        props.setShowLogin(false);
-
-                    });
+                props.setUser({ username: uname });
+                props.setShowLogin(false);
             }
         }).catch((err) => {
-            console.log("Shit error occured ", err);
+            console.log("error occured ", err);
         });
     }
 
